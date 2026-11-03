@@ -1,97 +1,190 @@
 {
-  "GET /api/login/status": { "code": 200, "data": 1 },
-  "GET /base-info/acadyearterm/showNewAcadlist": {
-    "code": 200,
-    "data": { "acadYearSemester": "2025-1" }
+  "GET /jsonp/userDesktopInfo.json": {
+    "userId": "23000001",
+    "userName": "张三",
+    "hasLogin": true
   },
-  "GET /base-info/school-calender/weekly?academicYear=2025-1": {
-    "code": 200,
-    "data": { "nowWeekly": "8", "nowTimeWeekly": 8 }
-  },
-  "GET /base-info/AcadyeartermSet/minorName?schoolYear=2025-1": {
-    "code": 200,
-    "data": [
-      { "sectionNumber": 1, "startTime": "08:00", "endTime": "08:45" },
-      { "sectionNumber": 2, "startTime": "08:55", "endTime": "09:40" },
-      { "sectionNumber": 5, "startTime": "14:20", "endTime": "15:05" }
-    ]
-  },
-  "GET /timetable-search/classTableInfo/selectStudentClassTable?academicYear=2025-1&weekly=8": {
-    "code": 200,
-    "data": [
-      {
-        "section": "1",
-        "monday": "xslx:bk;;kcmc:数据结构与算法;;rkjs:张老师;;skdd:公教楼B201;;jxb:202501;;skrq:第8周/2025-10-27/星期一/",
-        "tuesday": "",
-        "wednesday": "操作系统原理;;李老师;;实验楼C305",
-        "thursday": "",
-        "friday": ""
-      },
-      {
-        "section": "2",
-        "monday": "xslx:bk;;kcmc:数据结构与算法;;rkjs:张老师;;skdd:公教楼B201;;jxb:202501;;skrq:第8周/2025-10-27/星期一/",
-        "tuesday": "",
-        "wednesday": "操作系统原理;;李老师;;实验楼C305",
-        "thursday": "",
-        "friday": ""
-      },
-      {
-        "section": "5",
-        "monday": "xslx:bk;;kcmc:数据结构与算法;;rkjs:张老师;;skdd:公教楼B201;;jxb:202501;;skrq:第8周/2025-10-27/星期一/",
-        "tuesday": "大学英语;;王老师;;公教楼A104"
-      }
-    ]
-  },
-  "GET /achievement-manage/score-check/checkStuStatus": {
-    "code": 200,
-    "data": { "addScoreFlag": false }
-  },
-  "GET /achievement-manage/score-check/getPull": {
-    "code": 200,
-    "data": {
-      "selectYearPull": [{ "dataNumber": "2025-2026" }],
-      "selectTermPull": [{ "termNumber": "1" }],
-      "selectTrainType": [{ "dataNumber": "01" }]
+  "GET /jwapp/base-info/jnu-cli-check": {
+    "code": "0",
+    "datas": {
+      "source": "jnu",
+      "rows": []
     }
   },
-  "GET /achievement-manage/score-check/list?scoSchoolYear=2025-2026&trainTypeCode=01&addScoreFlag=false&scoSemester=1": {
+  "POST /jwapp/base-info/jnu-cli-check": {
+    "code": "0",
+    "datas": {
+      "accepted": true
+    }
+  },
+  "POST /jwapp/sys/wdkb/modules/jshkcb/dqzc.do": {
+    "code": "0",
+    "datas": {
+      "rows": [
+        {
+          "ZC": "8",
+          "XQJ": "1"
+        }
+      ]
+    }
+  },
+  "POST /jwapp/sys/wdkb/modules/xskcb/cxxljc.do": {
+    "code": "0",
+    "datas": {
+      "rows": [
+        {
+          "ZZC": "18",
+          "XQKSRQ": "2026-09-07"
+        }
+      ]
+    }
+  },
+  "POST /jwapp/sys/wdkb/modules/xskcb/xskcb.do": {
+    "code": "0",
+    "datas": {
+      "xskcb": {
+        "totalSize": 2,
+        "pageSize": 999,
+        "pageNumber": 1,
+        "rows": [
+          {
+            "KCM": "高等数学",
+            "KCH": "MATH101",
+            "KXH": "01",
+            "JXBID": "MATH101-01",
+            "SKXQ": "1",
+            "KSJC": "1",
+            "JSJC": "2",
+            "SKJS": "张老师,李老师",
+            "JASMC": "教学楼B201",
+            "SKZC": "111111111111111100",
+            "ISTK": "0",
+            "XKWZSM": "",
+            "KKDWDM_DISPLAY": "信息科学技术学院",
+            "XXXQDM_DISPLAY": "番禺校区"
+          },
+          {
+            "KCM": "大学英语",
+            "KCH": "ENG101",
+            "KXH": "02",
+            "JXBID": "ENG101-02",
+            "SKXQ": "3",
+            "KSJC": "3",
+            "JSJC": "4",
+            "SKJS": "王老师",
+            "JASMC": "教学楼A104",
+            "SKZC": "111111110000000000",
+            "ISTK": "0",
+            "XKWZSM": "需携带耳机",
+            "KKDWDM_DISPLAY": "外国语学院",
+            "XXXQDM_DISPLAY": "番禺校区"
+          }
+        ]
+      }
+    }
+  },
+  "POST /jwapp/sys/cjcx/modules/cjcx/cxdqxnxqhsygxnxq.do": {
+    "code": "0",
+    "datas": {
+      "cxdqxnxqhsygxnxq": {
+        "rows": [
+          {
+            "XNXQDM": "2025-2026-3"
+          },
+          {
+            "XNXQDM": "2026-2027-1"
+          }
+        ]
+      }
+    }
+  },
+  "POST /jwapp/sys/cjcx/modules/cjcx/xscjcx.do": {
+    "code": "0",
+    "datas": {
+      "xscjcx": {
+        "totalSize": 3,
+        "pageSize": 10,
+        "pageNumber": 1,
+        "rows": [
+          {
+            "KCM": "数据结构与算法",
+            "KCH": "DCS201",
+            "KXH": "01",
+            "JXBID": "2026DCS20101",
+            "XNXQDM": "2026-2027-1",
+            "ZCJ": "92",
+            "JDF": "4.2",
+            "XF": "4.0",
+            "XS": "64",
+            "KCLBDM_DISPLAY": "专业必修",
+            "KCXZDM_DISPLAY": "必修",
+            "KKDWDM_DISPLAY": "信息科学技术学院",
+            "SFJG": "是",
+            "SFYX": "是",
+            "DJCJLXDM": "",
+            "DJCJMC": "",
+            "PSCJ": "90",
+            "QZCJ": "91",
+            "QMCJ": "93"
+          },
+          {
+            "KCM": "高等数学I",
+            "KCH": "MATH101",
+            "KXH": "02",
+            "JXBID": "2026MATH10102",
+            "XNXQDM": "2026-2027-1",
+            "ZCJ": "88",
+            "JDF": "3.8",
+            "XF": "5.0",
+            "XS": "80",
+            "KCLBDM_DISPLAY": "公共必修",
+            "KCXZDM_DISPLAY": "必修",
+            "KKDWDM_DISPLAY": "数学学院",
+            "SFJG": "是",
+            "SFYX": "是",
+            "PSCJ": "86",
+            "QZCJ": "87",
+            "QMCJ": "89"
+          },
+          {
+            "KCM": "体育I",
+            "KCH": "PE101",
+            "KXH": "03",
+            "JXBID": "2026PE10103",
+            "XNXQDM": "2026-2027-1",
+            "ZCJ": "合格",
+            "JDF": null,
+            "XF": "1.0",
+            "XS": "32",
+            "KCLBDM_DISPLAY": "公共必修",
+            "KCXZDM_DISPLAY": "必修",
+            "KKDWDM_DISPLAY": "体育学院",
+            "SFJG": "是",
+            "SFYX": "是",
+            "DJCJLXDM": "1",
+            "DJCJMC": "合格"
+          }
+        ],
+        "extParams": {
+          "code": 1,
+          "msg": "查询成功"
+        }
+      }
+    }
+  },
+  "GET /schedule/agg/commonScheduleExamTime/queryExamWeekName?yearTerm=2025-1": {
     "code": 200,
     "data": [
       {
-        "scoCourseName": "数据结构与算法",
-        "scoCourseNumber": "DCS201",
-        "scoCourseCategoryName": "专业必修",
-        "scoCredit": "4.0",
-        "scoFinalScore": "92",
-        "scoPoint": "4.2",
-        "teachClassRank": "5/86",
-        "scoExamNatureName": "正常考试"
-      },
-      {
-        "scoCourseName": "高等数学I",
-        "scoCourseNumber": "MATH101",
-        "scoCourseCategoryName": "公共必修",
-        "scoCredit": "5.0",
-        "scoFinalScore": "88",
-        "scoPoint": "3.8",
-        "teachClassRank": "14/120",
-        "scoExamNatureName": "正常考试"
+        "examWeekId": "EW18",
+        "examWeekName": "18-19周期末考",
+        "startDate": "2026-01-05",
+        "endDate": "2026-01-16",
+        "applyRange": "全校"
       }
     ]
   },
-  "GET /achievement-manage/score-check/getSortByYear?scoSchoolYear=2025-2026&trainTypeCode=01&addScoreFlag=false&scoSemester=1": {
-    "code": 200,
-    "data": { "avePoint": "3.98", "rank": "12/160" }
-  },
-  "GET /achievement-manage/score-check/stuCreditSitlist": {
-    "code": 200,
-    "data": [{ "totalCredit": 152, "earnedCredit": 96 }]
-  },
-  "GET /achievement-manage/score-check/getPicPie": {
-    "code": 200,
-    "data": [{ "ITEM": "90-100", "COU": 12 }]
-  },
-  "GET /schedule/agg/commonScheduleExamTime/queryExamWeekName?yearTerm=2025-1": {
+  "GET /schedule/agg/commonScheduleExamTime/queryExamWeekName?yearTerm=2026-2027-1": {
     "code": 200,
     "data": [
       {
@@ -128,14 +221,27 @@
   "GET /base-info/campus/findCampusNamesBox": {
     "code": 200,
     "data": [
-      { "campusName": "东校园", "id": "5062203", "campusNumber": "3" },
-      { "campusName": "南校园", "id": "5062201", "campusNumber": "1" }
+      {
+        "campusName": "东校园",
+        "id": "5062203",
+        "campusNumber": "3"
+      },
+      {
+        "campusName": "南校园",
+        "id": "5062201",
+        "campusNumber": "1"
+      }
     ]
   },
   "GET /base-info/teaching-building/pull?campusId=5062203": {
     "code": 200,
     "data": [
-      { "id": "3000001", "code": "3000001", "name": "公教楼", "floorNumber": "5" }
+      {
+        "id": "3000001",
+        "code": "3000001",
+        "name": "公教楼",
+        "floorNumber": "5"
+      }
     ]
   },
   "POST /schedule/agg/classroomOccupy/pageCheckList": {
@@ -151,9 +257,18 @@
           "classroomID": "C201",
           "floor": "2",
           "seatCount": "120",
-          "oneSection": { "occupyReason": null, "occupyPro": null },
-          "twoSection": { "occupyReason": null, "occupyPro": null },
-          "threeSection": { "occupyReason": "计算机网络", "occupyPro": "5" }
+          "oneSection": {
+            "occupyReason": null,
+            "occupyPro": null
+          },
+          "twoSection": {
+            "occupyReason": null,
+            "occupyPro": null
+          },
+          "threeSection": {
+            "occupyReason": "计算机网络",
+            "occupyPro": "5"
+          }
         },
         {
           "date": "2026-10-26",
@@ -164,8 +279,14 @@
           "classroomID": "C202",
           "floor": "2",
           "seatCount": "80",
-          "oneSection": { "occupyReason": "编译原理", "occupyPro": "5" },
-          "twoSection": { "occupyReason": "编译原理", "occupyPro": "5" }
+          "oneSection": {
+            "occupyReason": "编译原理",
+            "occupyPro": "5"
+          },
+          "twoSection": {
+            "occupyReason": "编译原理",
+            "occupyPro": "5"
+          }
         }
       ]
     }
@@ -206,10 +327,22 @@
     "code": 200,
     "data": {
       "education": [
-        { "id": "N1", "title": "关于选派本科生赴海外交流的通知", "deliveryDate": "2026-10-23", "topMark": "0", "newDeliveryMark": "1" }
+        {
+          "id": "N1",
+          "title": "关于选派本科生赴海外交流的通知",
+          "deliveryDate": "2026-10-23",
+          "topMark": "0",
+          "newDeliveryMark": "1"
+        }
       ],
       "college": [
-        { "id": "N2", "title": "关于程序设计竞赛报名的通知", "deliveryDate": "2026-10-20", "topMark": "1", "newDeliveryMark": "0" }
+        {
+          "id": "N2",
+          "title": "关于程序设计竞赛报名的通知",
+          "deliveryDate": "2026-10-20",
+          "topMark": "1",
+          "newDeliveryMark": "0"
+        }
       ]
     }
   },
@@ -223,14 +356,21 @@
         "teachPlanNumber": "P001",
         "minGraduationCredit": 160,
         "finishCredit": 120,
-        "finishCreditRate": 75.0
+        "finishCreditRate": 75
       }
     ]
   },
   "POST /gradua-degree/graduatemsg/studentsGraduationExamination/creditHoursStu?cultureTypeCode=01": {
     "code": 200,
     "data": [
-      { "courseCategoryNumber": "10", "courseCategoryName": "公必", "actualCredit": 36, "exemptCredit": 0, "earnedCredit": 32, "earnedAllCredit": 32 }
+      {
+        "courseCategoryNumber": "10",
+        "courseCategoryName": "公必",
+        "actualCredit": 36,
+        "exemptCredit": 0,
+        "earnedCredit": 32,
+        "earnedAllCredit": 32
+      }
     ]
   },
   "POST /gradua-degree/graduatemsg/studentsGraduationExamination/studentCourse": {
@@ -238,31 +378,63 @@
     "data": {
       "total": 1,
       "rows": [
-        { "courseNumber": "MAR114", "courseName": "形势与政策", "courseCategoryNumber": "10", "courseCategoryName": "公必", "acadYearSemester": "2025-1", "credit": 2, "score": "90" }
+        {
+          "courseNumber": "MAR114",
+          "courseName": "形势与政策",
+          "courseCategoryNumber": "10",
+          "courseCategoryName": "公必",
+          "acadYearSemester": "2025-1",
+          "credit": 2,
+          "score": "90"
+        }
       ]
     }
   },
   "GET /training-programe/training-programe/undergradute/student/personalMainProgram": {
     "code": 200,
     "data": [
-      { "STUDENTNUMBER": "23000001", "GRADE": "2023", "COLLEGE": "计算机学院", "PROFESSIONCODE": "080901", "PROFESSIONNAME": "计算机科学与技术", "TEACHPLANNUMBER": "P001" }
+      {
+        "STUDENTNUMBER": "23000001",
+        "GRADE": "2023",
+        "COLLEGE": "计算机学院",
+        "PROFESSIONCODE": "080901",
+        "PROFESSIONNAME": "计算机科学与技术",
+        "TEACHPLANNUMBER": "P001"
+      }
     ]
   },
   "GET /training-programe/trainingBasicInfo/getBasicInformation?id=P001": {
     "code": 200,
-    "data": { "id": "P001", "grade": "2023", "collegeName": "计算机学院", "professionName": "计算机科学与技术", "schoolSystem": 4, "minGraduationCredit": 160 }
+    "data": {
+      "id": "P001",
+      "grade": "2023",
+      "collegeName": "计算机学院",
+      "professionName": "计算机科学与技术",
+      "schoolSystem": 4,
+      "minGraduationCredit": 160
+    }
   },
   "GET /training-programe/trainingReqGraduate/showReqGraduateCreits?grade=2023&cultivateId=P001&cultivateCategoryId=01": {
     "code": 200,
     "data": [
-      { "courseCategoryName": "公必", "courseCategoryCode": "10", "requireCredit": 36 }
+      {
+        "courseCategoryName": "公必",
+        "courseCategoryCode": "10",
+        "requireCredit": 36
+      }
     ]
   },
   "GET /training-programe/schemeSubmitAgg/getTableByProgramId?programId=P001": {
     "code": 200,
     "data": {
       "publicRequired": [
-        { "courseNumber": "FL101", "courseName": "大学外语（I）", "courseEN": "College English I", "courseCategoryCode": "10", "credit": 2 }
+        {
+          "courseNumber": "FL101",
+          "courseName": "大学外语（I）",
+          "courseEN": "College English I",
+          "courseCategoryCode": "10",
+          "credit": 2
+        }
       ]
     }
   },
@@ -271,22 +443,45 @@
     "data": {
       "total": 1,
       "rows": [
-        { "class_ID": "CL1", "sumClassesNum": "20251001", "yearTerm": "2025-1", "courseNum": "DCS201", "courseName": "数据结构与算法", "credit": 4, "departmentName": "计算机学院", "campusName": "东校园", "teacherName": "张老师" }
+        {
+          "class_ID": "CL1",
+          "sumClassesNum": "20251001",
+          "yearTerm": "2025-1",
+          "courseNum": "DCS201",
+          "courseName": "数据结构与算法",
+          "credit": 4,
+          "departmentName": "计算机学院",
+          "campusName": "东校园",
+          "teacherName": "张老师"
+        }
       ]
     }
   },
   "GET /student-status/countrystu/studentRollView": {
     "code": 200,
-    "data": { "studentNumber": "23000001", "basicName": "张三", "basicNameSpell": "ZHANG San", "grade": "2023", "collegeName": "计算机学院", "professionName": "计算机科学与技术", "schoolSystem": "4" }
+    "data": {
+      "studentNumber": "23000001",
+      "basicName": "张三",
+      "basicNameSpell": "ZHANG San",
+      "grade": "2023",
+      "collegeName": "计算机学院",
+      "professionName": "计算机科学与技术",
+      "schoolSystem": "4"
+    }
   },
   "GET /alarm/alarm-archives/studentAlarmNumber": {
     "code": 200,
     "data": [
-      { "alarmType": "1", "name": "Ⅰ级", "value": "0", "color": "green" }
+      {
+        "alarmType": "1",
+        "name": "Ⅰ级",
+        "value": "0",
+        "color": "green"
+      }
     ]
   },
-  "OPAC func=find-b&find_code=WRD&request=%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA&local_base=ZSU01": "<div id=hitnum>记录 1 - 1 of 1</div><!-- filename: short-lcl-body--><!-- Z13-ISBN-ISSN (3100) = 978-7-111-40701-0\nDOC-NUMBER (3300) = 001011438\nZ05-BASE (3400) = ZSU01\nTOTAL-NUMBER-OF-ITEMS (3500) = 5\nTOTAL-NUMBER-OF-LOANED-ITEM (3600) = 1\nQR (3900) = 东校园中文图书（3楼/4楼）  TP301.6/126.2 %0A南校园中文理科书库（夹层4楼）  TP301.6/126.2 %0A --><table class=items><tr><td class=col2><div class=itemtitle><a href='#'>算法导论</a></div><table><tr><td class=label1>作者：<td class=content>科尔曼<td class=label1>索书号：<td class=content>TP301.6/126.2<tr><td class=label1>出版社：<td class=content>机械工业出版社<td class=label>年份：<td class=content>2013</table></table>",
-  "OPAC func=item-global&doc_library=ZSU01&doc_number=001011438": "<table><tr><td>详细</td><td></td><td>外借本</td><td>在架上</td><td></td><td>东校园流通</td><td>东校园中文图书（3楼/4楼）</td><td>TP301.6/126.2</td><td></td><td></td><td></td><td>A1801623</td></tr><tr><td>详细</td><td></td><td>外借本</td><td>20261104</td><td></td><td>南校园中文流通</td><td>南校园中文理科书库（夹层4楼）</td><td>TP301.6/126.2</td><td></td><td></td><td></td><td>A3297513</td></tr></table>",
+  "OPAC func=find-b&find_code=WRD&request=%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA&local_base=JNU01": "<div id=hitnum>记录 1 - 1 of 1</div><!-- filename: short-lcl-body--><!-- Z13-ISBN-ISSN (3100) = 978-7-111-40701-0\nDOC-NUMBER (3300) = 001011438\nZ05-BASE (3400) = JNU01\nTOTAL-NUMBER-OF-ITEMS (3500) = 5\nTOTAL-NUMBER-OF-LOANED-ITEM (3600) = 1\nQR (3900) = 番禺校区中文图书（3楼/4楼）  TP301.6/126.2 %0A石牌校区中文理科书库（夹层4楼）  TP301.6/126.2 %0A --><table class=items><tr><td class=col2><div class=itemtitle><a href='#'>算法导论</a></div><table><tr><td class=label1>作者：<td class=content>科尔曼<td class=label1>索书号：<td class=content>TP301.6/126.2<tr><td class=label1>出版社：<td class=content>机械工业出版社<td class=label>年份：<td class=content>2013</table></table>",
+  "OPAC func=item-global&doc_library=JNU01&doc_number=001011438": "<table><tr><td>详细</td><td></td><td>外借本</td><td>在架上</td><td></td><td>番禺校区流通</td><td>番禺校区中文图书（3楼/4楼）</td><td>TP301.6/126.2</td><td></td><td></td><td></td><td>A1801623</td></tr><tr><td>详细</td><td></td><td>外借本</td><td>20261104</td><td></td><td>石牌校区中文流通</td><td>石牌校区中文理科书库（夹层4楼）</td><td>TP301.6/126.2</td><td></td><td></td><td></td><td>A3297513</td></tr></table>",
   "GYM GET /api/venuetype/all": [
     {
       "Identity": "c4f06a7d-bb6b-4a2f-9626-7bebfc4f09ae",
@@ -397,8 +592,8 @@
       }
     ]
   },
-  "LMS GET /course/index.php": "<a href=\"https://lms.sysu.edu.cn/course/index.php?categoryid=56\">本科生课程</a><a href=\"https://lms.sysu.edu.cn/course/index.php?categoryid=57\">研究生课程</a>",
-  "LMS GET /course/search.php?search=Python": "<div class=\"coursebox\" data-courseid=\"1005033\"><div class=\"coursename\"><a href=\"https://lms.sysu.edu.cn/course/view.php?id=1005033\">Python程序设计</a></div></div>",
+  "LMS GET /course/index.php": "<a href=\"https://lms.jnu.edu.cn/course/index.php?categoryid=56\">本科生课程</a><a href=\"https://lms.jnu.edu.cn/course/index.php?categoryid=57\">研究生课程</a>",
+  "LMS GET /course/search.php?search=Python": "<div class=\"coursebox\" data-courseid=\"1005033\"><div class=\"coursename\"><a href=\"https://lms.jnu.edu.cn/course/view.php?id=1005033\">Python程序设计</a></div></div>",
   "LMS AJAX core_course_get_enrolled_courses_by_timeline_classification": {
     "courses": [
       {
@@ -408,7 +603,7 @@
         "coursecategory": "本科生课程",
         "hasprogress": true,
         "progress": 60,
-        "viewurl": "https://lms.sysu.edu.cn/course/view.php?id=59"
+        "viewurl": "https://lms.jnu.edu.cn/course/view.php?id=59"
       }
     ]
   },
@@ -430,12 +625,18 @@
         "action": {
           "name": "现在去测验",
           "actionable": true,
-          "url": "https://lms.sysu.edu.cn/mod/quiz/view.php?id=196"
+          "url": "https://lms.jnu.edu.cn/mod/quiz/view.php?id=196"
         }
       }
     ]
   },
-  "LMS GET /course/view.php?id=59": "<title>课程： 人工智能导论-2026-1</title><ul><li id=\"section-1\"><h3 class=\"sectionname\">第一章 绪论</h3><ul><li class=\"activity activity-wrapper fsresource modtype_fsresource hasinfo\" id=\"module-190\"><div class=\"activity-item\" data-activityname=\"1.1 导论视频课\"><a href=\"https://lms.sysu.edu.cn/mod/fsresource/view.php?id=190\"><span class=\"instancename\">1.1 导论视频课</span></a><div data-region=\"completion-info\"><div class=\"automatic-completion-conditions\" data-region=\"completionrequirements\"><span class=\"badge badge-pill badge-light\"><span class=\"font-weight-normal\">查看</span></span></div></div></div></li><li class=\"activity activity-wrapper quiz modtype_quiz hasinfo\" id=\"module-196\"><div class=\"activity-item\" data-activityname=\"第一章测验\"><a href=\"https://lms.sysu.edu.cn/mod/quiz/view.php?id=196\"><span class=\"instancename\">第一章测验</span></a><div data-region=\"completion-info\"><div class=\"automatic-completion-conditions\" data-region=\"completionrequirements\"><span class=\"badge badge-pill badge-light\"><span class=\"font-weight-normal\">获得及格分数</span></span></div></div></div></li></ul></li></ul>",
-  "LMS GET /mod/quiz/view.php?id=196": "<title>第一章测验</title><h2>第一章测验</h2><div id=\"intro\"><p>本测验共2题</p></div><a href=\"https://lms.sysu.edu.cn/mod/quiz/attempt.php?attempt=5001&amp;cmid=196\">继续上次答题</a>",
-  "LMS GET /mod/quiz/attempt.php?attempt=5001&cmid=196": "<title>第一章测验</title><div id=\"question-5001-1\" class=\"que multichoice deferredfeedback notyetanswered\"><div class=\"info\"><h3 class=\"no\">题目 <span class=\"qno\">1</span></h3><div class=\"state\">未回答</div><div class=\"grade\">满分1.00</div></div><div class=\"content\"><div class=\"formulation clearfix\"><div class=\"qtext\"><p>以下哪项属于监督学习算法？</p></div><div class=\"ablock\"><div class=\"answer\"><div class=\"r0\"><input type=\"radio\" name=\"q1\" value=\"0\" /><span class=\"answernumber\">a. </span><div><p>K-Means 聚类</p></div></div><div class=\"r1\"><input type=\"radio\" name=\"q1\" value=\"1\" checked=\"checked\" /><span class=\"answernumber\">b. </span><div><p>支持向量机 (SVM)</p></div></div></div></div></div></div></div><div id=\"question-5001-2\" class=\"que truefalse deferredfeedback notyetanswered\"><div class=\"info\"><h3 class=\"no\">题目 <span class=\"qno\">2</span></h3><div class=\"state\">未回答</div><div class=\"grade\">满分1.00</div></div><div class=\"content\"><div class=\"formulation clearfix\"><div class=\"qtext\"><p>梯度下降法一定能收敛到全局最优解。</p></div><div class=\"ablock\"><div class=\"answer\"><div class=\"r0\"><input type=\"radio\" name=\"q2\" value=\"1\" /><label>对</label></div><div class=\"r1\"><input type=\"radio\" name=\"q2\" value=\"0\" /><label>错</label></div></div></div></div></div></div>"
+  "LMS GET /course/view.php?id=59": "<title>课程： 人工智能导论-2026-1</title><ul><li id=\"section-1\"><h3 class=\"sectionname\">第一章 绪论</h3><ul><li class=\"activity activity-wrapper fsresource modtype_fsresource hasinfo\" id=\"module-190\"><div class=\"activity-item\" data-activityname=\"1.1 导论视频课\"><a href=\"https://lms.jnu.edu.cn/mod/fsresource/view.php?id=190\"><span class=\"instancename\">1.1 导论视频课</span></a><div data-region=\"completion-info\"><div class=\"automatic-completion-conditions\" data-region=\"completionrequirements\"><span class=\"badge badge-pill badge-light\"><span class=\"font-weight-normal\">查看</span></span></div></div></div></li><li class=\"activity activity-wrapper quiz modtype_quiz hasinfo\" id=\"module-196\"><div class=\"activity-item\" data-activityname=\"第一章测验\"><a href=\"https://lms.jnu.edu.cn/mod/quiz/view.php?id=196\"><span class=\"instancename\">第一章测验</span></a><div data-region=\"completion-info\"><div class=\"automatic-completion-conditions\" data-region=\"completionrequirements\"><span class=\"badge badge-pill badge-light\"><span class=\"font-weight-normal\">获得及格分数</span></span></div></div></div></li></ul></li></ul>",
+  "LMS GET /mod/quiz/view.php?id=196": "<title>第一章测验</title><h2>第一章测验</h2><div id=\"intro\"><p>本测验共2题</p></div><a href=\"https://lms.jnu.edu.cn/mod/quiz/attempt.php?attempt=5001&amp;cmid=196\">继续上次答题</a>",
+  "LMS GET /mod/quiz/attempt.php?attempt=5001&cmid=196": "<title>第一章测验</title><div id=\"question-5001-1\" class=\"que multichoice deferredfeedback notyetanswered\"><div class=\"info\"><h3 class=\"no\">题目 <span class=\"qno\">1</span></h3><div class=\"state\">未回答</div><div class=\"grade\">满分1.00</div></div><div class=\"content\"><div class=\"formulation clearfix\"><div class=\"qtext\"><p>以下哪项属于监督学习算法？</p></div><div class=\"ablock\"><div class=\"answer\"><div class=\"r0\"><input type=\"radio\" name=\"q1\" value=\"0\" /><span class=\"answernumber\">a. </span><div><p>K-Means 聚类</p></div></div><div class=\"r1\"><input type=\"radio\" name=\"q1\" value=\"1\" checked=\"checked\" /><span class=\"answernumber\">b. </span><div><p>支持向量机 (SVM)</p></div></div></div></div></div></div></div><div id=\"question-5001-2\" class=\"que truefalse deferredfeedback notyetanswered\"><div class=\"info\"><h3 class=\"no\">题目 <span class=\"qno\">2</span></h3><div class=\"state\">未回答</div><div class=\"grade\">满分1.00</div></div><div class=\"content\"><div class=\"formulation clearfix\"><div class=\"qtext\"><p>梯度下降法一定能收敛到全局最优解。</p></div><div class=\"ablock\"><div class=\"answer\"><div class=\"r0\"><input type=\"radio\" name=\"q2\" value=\"1\" /><label>对</label></div><div class=\"r1\"><input type=\"radio\" name=\"q2\" value=\"0\" /><label>错</label></div></div></div></div></div></div>",
+  "POST /jwapp/sys/funauthapp/api/changeAppRole/cjcx/20200716150916600.do": {
+    "success": true
+  },
+  "POST /jwapp/sys/funauthapp/api/changeAppRole/wdkb/20200716150916600.do": {
+    "success": true
+  }
 }

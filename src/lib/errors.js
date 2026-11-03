@@ -19,6 +19,7 @@ export const EXIT_CODES = Object.freeze({
   RATE_LIMITED: 4,
   UPSTREAM_ERROR: 4,
   UPSTREAM_CHANGED: 4,
+  UPSTREAM_NOT_CAPTURED: 4,
   NETWORK_ERROR: 5,
   BROWSER_UNAVAILABLE: 6,
   BROWSER_BUSY: 6,
@@ -44,22 +45,22 @@ export function toErrorPayload(error) {
   };
 }
 
-export const LOGIN_HINT = 'Run `sysu-cli auth refresh` to renew from the saved unified-auth session; if that fails, run `sysu-cli auth login` and finish login in the opened browser.';
+export const LOGIN_HINT = 'Run `jnu-cli auth refresh` to renew from the saved unified-auth session; if that fails, run `jnu-cli auth login` and finish login in the opened browser.';
 
-export function loginRequired(message = 'SYSU JWXT session is missing or expired.', details) {
+export function loginRequired(message = 'JNU JWXT session is missing or expired.', details) {
   return new CliError('LOGIN_REQUIRED', message, { hint: LOGIN_HINT, details });
 }
 
 export function invalidArgument(message, details) {
   return new CliError('INVALID_ARGUMENT', message, {
-    hint: 'Run `sysu-cli <command> --help` to see supported options.',
+    hint: 'Run `jnu-cli <command> --help` to see supported options.',
     details
   });
 }
 
 export function upstreamChanged(message, details) {
   return new CliError('UPSTREAM_CHANGED', message, {
-    hint: 'The JWXT API response shape may have changed. Re-run with `--raw`, or capture traffic with `sysu-cli dev capture`, then update the parser.',
+    hint: 'The JWXT API response shape may have changed. Re-run with `--raw`, or capture traffic with `jnu-cli dev capture`, then update the parser.',
     details
   });
 }

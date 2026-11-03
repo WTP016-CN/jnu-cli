@@ -1,11 +1,13 @@
 import { invalidArgument } from '../lib/errors.js';
 import { JWXT_BASE } from '../lib/jwxt.js';
+import { notCaptured } from '../lib/not-captured.js';
 import { matchExamWeekType, normalizeExamWeek, parseExamRows } from '../parsers/exam-parser.js';
 import { describeTerm, resolveTerm } from './term.js';
 
 const REFERER = `${JWXT_BASE}/mk/#/stuExamInfo`;
 
 export async function listExamWeeks(client, { term: termOption } = {}) {
+  requireCapturedExamBackend();
   const term = await resolveTerm(client, termOption);
   const weeks = await fetchExamWeeks(client, term);
   return {
@@ -17,6 +19,7 @@ export async function listExamWeeks(client, { term: termOption } = {}) {
 }
 
 export async function listExams(client, { term: termOption, type, weekId, raw } = {}) {
+  requireCapturedExamBackend();
   const term = await resolveTerm(client, termOption);
   const weeks = await fetchExamWeeks(client, term);
   const targets = weeks
@@ -55,6 +58,12 @@ export async function listExams(client, { term: termOption, type, weekId, raw } 
     exams,
     ...(raw ? { raw: rawResults } : {})
   };
+}
+
+function requireCapturedExamBackend() {
+  if (process.env.JNU_BACKEND !== 'mock') {
+    throw notCaptured('JNU examination schedule services');
+  }
 }
 
 async function fetchExamWeeks(client, term) {

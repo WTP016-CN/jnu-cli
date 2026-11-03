@@ -29,13 +29,13 @@ export function normalizeSectionTimes(rows) {
  * Build an RFC 5545 iCalendar (.ics) string in Asia/Shanghai local time from
  * normalized course entries (each with date YYYY-MM-DD, startSection, endSection).
  */
-export function buildCourseIcs(entries, { sectionTimes, calendarName = 'SYSU 课表' } = {}) {
+export function buildCourseIcs(entries, { sectionTimes, calendarName = 'JNU 课表' } = {}) {
   const times = sectionTimes ?? DEFAULT_SECTION_TIMES;
   const stamp = formatUtcTimestamp(new Date());
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//sysu-cli//SYSU JWXT Timetable//CN',
+    'PRODID:-//jnu-cli//JNU JWXT Timetable//CN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${escapeIcs(calendarName)}`,
@@ -49,7 +49,7 @@ export function buildCourseIcs(entries, { sectionTimes, calendarName = 'SYSU 课
     const endClock = times[entry.endSection]?.endTime ?? times[entry.startSection]?.endTime ?? DEFAULT_SECTION_TIMES[1].endTime;
     const dtStart = toLocalDateTime(entry.date, startClock);
     const dtEnd = toLocalDateTime(entry.date, endClock);
-    const uid = `${entry.term ?? 'term'}-w${entry.week ?? 0}-d${entry.weekday}-${entry.startSection}-${entry.endSection}-${hashUid(entry.courseName + (entry.classCode ?? ''))}@sysu-cli`;
+    const uid = `${entry.term ?? 'term'}-w${entry.week ?? 0}-d${entry.weekday}-${entry.startSection}-${entry.endSection}-${hashUid(entry.courseName + (entry.classCode ?? ''))}@jnu-cli`;
     const descParts = [
       entry.teacher ? `教师: ${entry.teacher}` : null,
       entry.sections ? `节次: 第${entry.sections}节` : null,

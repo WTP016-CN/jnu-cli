@@ -24,19 +24,19 @@ export async function importPlaywright() {
     return await import('playwright');
   } catch (cause) {
     throw new CliError('BACKEND_UNAVAILABLE', 'Playwright is not installed.', {
-      hint: 'Reinstall sysu-cli (`npm install --global sysu-cli`) so its playwright dependency is present.',
+      hint: 'Reinstall jnu-cli (`npm install --global jnu-cli`) so its playwright dependency is present.',
       cause
     });
   }
 }
 
 /**
- * Launch a persistent browser profile dedicated to sysu-cli.
- * Order: explicit option -> SYSU_BROWSER -> chrome -> edge -> bundled chromium.
+ * Launch a persistent browser profile dedicated to jnu-cli.
+ * Order: explicit option -> JNU_BROWSER -> chrome -> edge -> bundled chromium.
  */
 export async function launchProfile({ browser, headless = false } = {}) {
   const { chromium } = await importPlaywright();
-  const explicit = normalizeBrowser(browser) ?? normalizeBrowser(process.env.SYSU_BROWSER);
+  const explicit = normalizeBrowser(browser) ?? normalizeBrowser(process.env.JNU_BROWSER);
   const order = explicit ? [explicit] : ['chrome', 'edge', 'chromium'];
   const failures = [];
 
@@ -57,15 +57,15 @@ export async function launchProfile({ browser, headless = false } = {}) {
     } catch (error) {
       const message = String(error?.message ?? error);
       if (/ProcessSingleton|already in use|user data directory is already/i.test(message)) {
-        throw new CliError('BROWSER_BUSY', `The sysu-cli ${candidate.label} profile is already open.`, {
-          hint: 'Close the other sysu-cli browser window (or wait for the previous command to finish), then retry.'
+        throw new CliError('BROWSER_BUSY', `The jnu-cli ${candidate.label} profile is already open.`, {
+          hint: 'Close the other jnu-cli browser window (or wait for the previous command to finish), then retry.'
         });
       }
       failures.push({ browser: id, error: message.split('\n')[0] });
     }
   }
 
-  throw new CliError('BROWSER_UNAVAILABLE', 'No usable browser was found for sysu-cli login.', {
+  throw new CliError('BROWSER_UNAVAILABLE', 'No usable browser was found for jnu-cli login.', {
     hint: 'Install Google Chrome or Microsoft Edge, or run `npx playwright install chromium` and retry with `--browser chromium`.',
     details: { tried: failures }
   });

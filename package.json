@@ -1,11 +1,11 @@
 {
-  "name": "sysu-cli",
+  "name": "jnu-cli",
   "version": "0.3.0",
   "private": false,
-  "description": "Agent-friendly CLI for Sun Yat-sen University (SYSU) web services.",
+  "description": "Agent-friendly CLI for Jinan University (JNU) web services.",
   "type": "module",
   "bin": {
-    "sysu-cli": "src/cli.js"
+    "jnu-cli": "src/cli.js"
   },
   "files": [
     "src",
@@ -17,23 +17,24 @@
   ],
   "scripts": {
     "test": "node --test",
-    "sysu-cli": "node src/cli.js"
+    "jnu-cli": "node src/cli.js"
   },
   "keywords": [
-    "sysu",
+    "jnu",
     "cli",
     "agent",
     "campus",
-    "jwxt"
+    "jwxt",
+    "jinan-university"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/NoodleStormno/sysu-cli.git"
+    "url": "https://github.com/NoodleStormno/jnu-cli.git"
   },
-  "homepage": "https://github.com/NoodleStormno/sysu-cli#readme",
+  "homepage": "https://github.com/NoodleStormno/jnu-cli#readme",
   "bugs": {
-    "url": "https://github.com/NoodleStormno/sysu-cli/issues"
+    "url": "https://github.com/NoodleStormno/jnu-cli/issues"
   },
   "engines": {
     "node": ">=20"

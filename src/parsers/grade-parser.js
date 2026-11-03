@@ -1,14 +1,19 @@
 const FIELD_CANDIDATES = {
-  courseName: ['scoCourseName', 'courseName', 'kcmc'],
-  courseCode: ['scoCourseNumber', 'courseNo', 'courseCode', 'kch'],
-  courseType: ['scoCourseCategoryName', 'scoCourseTypeName', 'scoCourseType', 'scoCourseNatureName', 'scoCourseNature', 'courseTypeName', 'courseType', 'kclb'],
-  credit: ['scoCredit', 'credit', 'courseCredit', 'xf'],
-  score: ['scoFinalScore', 'score', 'scoreValue', 'cj'],
-  gradePoint: ['scoPoint', 'gradePoint', 'point', 'jd'],
+  courseName: ['KCM', 'scoCourseName', 'courseName', 'kcmc'],
+  courseCode: ['KCH', 'scoCourseNumber', 'courseNo', 'courseCode', 'kch'],
+  classSerial: ['KXH'],
+  classId: ['JXBID'],
+  courseType: ['KCLBDM_DISPLAY', 'scoCourseCategoryName', 'scoCourseTypeName', 'courseTypeName', 'kclb'],
+  courseNature: ['KCXZDM_DISPLAY', 'scoCourseNatureName', 'scoCourseNature'],
+  department: ['KKDWDM_DISPLAY'],
+  credit: ['XF', 'scoCredit', 'credit', 'courseCredit', 'xf'],
+  score: ['ZCJ', 'scoFinalScore', 'score', 'scoreValue', 'cj'],
+  gradePoint: ['JDF', 'scoPoint', 'gradePoint', 'point', 'jd'],
   rank: ['teachClassRank', 'scoRank', 'rank', 'pm'],
   examNature: ['scoExamNatureName', 'scoExamNature', 'examNature', 'examType', 'ksxz'],
   assessmentMethod: ['scoAssessTypeName', 'scoAssessType', 'assessmentMethod', 'khfs'],
-  scoreFlag: ['scoScoreFlag', 'scoScoreSign', 'scoreFlag', 'cjbz']
+  scoreFlag: ['scoScoreFlag', 'scoScoreSign', 'scoreFlag', 'cjbz'],
+  passed: ['SFJG']
 };
 
 export function firstValue(row, keys) {
@@ -32,19 +37,31 @@ export function parseGradeRows(rows, { term } = {}) {
   return rows
     .filter((row) => row && typeof row === 'object')
     .map((row) => ({
-      term: term ?? null,
+      term: firstValue(row, ['XNXQDM']) ?? term ?? null,
       courseName: firstValue(row, FIELD_CANDIDATES.courseName),
       courseCode: firstValue(row, FIELD_CANDIDATES.courseCode),
+      classSerial: firstValue(row, FIELD_CANDIDATES.classSerial),
+      classId: firstValue(row, FIELD_CANDIDATES.classId),
       courseType: firstValue(row, FIELD_CANDIDATES.courseType),
+      courseNature: firstValue(row, FIELD_CANDIDATES.courseNature),
+      department: firstValue(row, FIELD_CANDIDATES.department),
       credit: toNumber(firstValue(row, FIELD_CANDIDATES.credit)),
       score: firstValue(row, FIELD_CANDIDATES.score),
       gradePoint: toNumber(firstValue(row, FIELD_CANDIDATES.gradePoint)),
       rank: firstValue(row, FIELD_CANDIDATES.rank),
       examNature: firstValue(row, FIELD_CANDIDATES.examNature),
       assessmentMethod: firstValue(row, FIELD_CANDIDATES.assessmentMethod),
-      scoreFlag: firstValue(row, FIELD_CANDIDATES.scoreFlag)
+      scoreFlag: firstValue(row, FIELD_CANDIDATES.scoreFlag),
+      passed: toBoolean(firstValue(row, FIELD_CANDIDATES.passed))
     }))
     .sort((a, b) => String(a.courseName ?? '').localeCompare(String(b.courseName ?? ''), 'zh-CN'));
+}
+
+function toBoolean(value) {
+  if (value === null) return null;
+  if (['1', 'true', '是', '及格'].includes(value.toLowerCase())) return true;
+  if (['0', 'false', '否', '不及格'].includes(value.toLowerCase())) return false;
+  return null;
 }
 
 /**

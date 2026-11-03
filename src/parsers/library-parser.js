@@ -14,12 +14,11 @@ function stripTags(html = '') {
 
 function inferCampus(text = '') {
   const s = String(text);
-  for (const campus of ['南校园', '北校园', '东校园', '珠海校区', '深圳校区']) {
+  for (const campus of ['石牌校区', '番禺校区', '珠海校区', '深圳校区']) {
     if (s.includes(campus)) return campus;
   }
-  if (s.includes('南校')) return '南校园';
-  if (s.includes('北校')) return '北校园';
-  if (s.includes('东校')) return '东校园';
+  if (s.includes('石牌')) return '石牌校区';
+  if (s.includes('番禺')) return '番禺校区';
   if (s.includes('珠海')) return '珠海校区';
   if (s.includes('深圳')) return '深圳校区';
   return '';
@@ -58,7 +57,7 @@ export function parseLibrarySearchHtml(html = '') {
     const docNumber = (chunk.match(/DOC-NUMBER\s*\(\d+\)\s*=\s*([0-9A-Za-z]+)/) ?? [])[1] ?? '';
     if (!docNumber) continue;
 
-    const base = ((chunk.match(/Z05-BASE\s*\(\d+\)\s*=\s*([0-9A-Za-z]+)/) ?? [])[1] ?? 'ZSU01').trim();
+    const base = ((chunk.match(/Z05-BASE\s*\(\d+\)\s*=\s*([0-9A-Za-z]+)/) ?? [])[1] ?? 'JNU01').trim();
     const isbn = ((chunk.match(/Z13-ISBN-ISSN\s*\(\d+\)\s*=\s*([^\r\n]+)/) ?? [])[1] ?? '').trim();
     const totalItems = Number(((chunk.match(/TOTAL-NUMBER-OF-ITEMS\s*\(\d+\)\s*=\s*(\d+)/) ?? [])[1] ?? 0));
     const loanedItems = Number(((chunk.match(/TOTAL-NUMBER-OF-LOANED-ITEM\s*\(\d+\)\s*=\s*(\d+)/) ?? [])[1] ?? 0));

@@ -5,17 +5,13 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { CookieJar } from '../src/lib/cookies.js';
+import { JwxtClient } from '../src/lib/jwxt.js';
 import { run } from '../src/main.js';
+import { listGrades } from '../src/modules/grade.js';
 import { normalizeTerm } from '../src/modules/term.js';
 import { parseTimetableRows, weekOffset } from '../src/parsers/course-parser.js';
 import { parseExamRows } from '../src/parsers/exam-parser.js';
 import { computeWeightedGpa, parseGradeRows } from '../src/parsers/grade-parser.js';
-import {
-  computeSlotsHash,
-  extractUuidFromJwt,
-  generateBookingSignature,
-  solveSafelinePow
-} from '../src/parsers/gym-parser.js';
 import { enforceActionCooldown } from '../src/lib/rate-limit.js';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -24,7 +20,7 @@ const FIXTURE = join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'jwxt.
 
 async function invoke(args, env = {}) {
   const previous = {};
-  const merged = { SYSU_BACKEND: 'mock', SYSU_MOCK_FILE: FIXTURE, ...env };
+  const merged = { JNU_BACKEND: 'mock', JNU_MOCK_FILE: FIXTURE, ...env };
   for (const [key, value] of Object.entries(merged)) {
     previous[key] = process.env[key];
     if (value === undefined) delete process.env[key];
@@ -60,15 +56,55 @@ test('merges consecutive sections and keeps non-contiguous sections separate', (
   assert.equal(entries[1].sections, '5');
 });
 
-test('computes credit-weighted GPA', () => {
+test('parses JNU grade rows and skips missing grade points when computing GPA', () => {
   const rows = parseGradeRows([
-    { scoCourseName: 'A', scoCredit: '4', scoFinalScore: '92', scoPoint: '4.2' },
-    { scoCourseName: 'B', scoCredit: '5', scoFinalScore: '88', scoPoint: '3.8' },
-    { scoCourseName: 'P/F', scoCredit: '1', scoFinalScore: '合格', scoPoint: '' }
+    { KCM: 'A', KCH: 'A101', XF: '4', ZCJ: '92', JDF: '4.2', SFJG: '是' },
+    { KCM: 'B', KCH: 'B101', XF: '5', ZCJ: '88', JDF: '3.8', SFJG: '是' },
+    { KCM: 'P/F', KCH: 'P101', XF: '1', ZCJ: '合格', JDF: null, SFJG: '是' }
   ]);
+  assert.equal(rows[0].courseName, 'A');
+  assert.equal(rows[0].passed, true);
+  assert.equal(rows[2].gradePoint, null);
   const summary = computeWeightedGpa(rows);
   assert.equal(summary.gradedCredits, 9);
   assert.equal(summary.weightedGpa, 3.978);
+});
+
+test('replays the captured JNU grade form and current-term endpoint', async () => {
+  const requests = [];
+  const client = new JwxtClient({
+    state: {
+      cookies: [{ name: 'JSESSIONID', value: 'mock', domain: 'jw.jnu.edu.cn', path: '/', expires: -1 }]
+    },
+    persist: false,
+    fetchImpl: async (url, init) => {
+      requests.push({ url, init });
+      const body = url.pathname.endsWith('cxdqxnxqhsygxnxq.do')
+        ? { code: '0', datas: { rows: [{ XNXQDM: '2025-2026-3' }, { XNXQDM: '2026-2027-1' }] } }
+        : { code: '0', datas: { xscjcx: { rows: [{ KCM: '课程', KCH: 'C1', XF: '2', ZCJ: '90', JDF: '4.0', XNXQDM: '2026-2027-1' }] } } };
+      return new Response(JSON.stringify(body), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+  });
+
+  const result = await listGrades(client);
+  assert.equal(result.term, '2026-1');
+  assert.equal(requests.length, 2);
+  assert.match(requests[0].url.pathname, /cxdqxnxqhsygxnxq\.do$/);
+  assert.equal(requests[0].init.body, '');
+  assert.match(requests[1].url.pathname, /xscjcx\.do$/);
+  assert.equal(requests[1].init.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8');
+
+  const form = new URLSearchParams(requests[1].init.body);
+  assert.equal(form.get('*order'), '-XNXQDM,-KCH,-KXH');
+  assert.deepEqual(JSON.parse(form.get('querySetting'))[0], {
+    name: 'XNXQDM',
+    value: '2026-2027-1',
+    linkOpt: 'and',
+    builder: 'm_value_equal'
+  });
 });
 
 test('parses exam grid cells and skips emptyFlag slots', () => {
@@ -101,28 +137,63 @@ test('computes whole-week offset across week boundaries', () => {
 
 test('cookie jar matches subdomains, paths, and Set-Cookie updates', () => {
   const jar = new CookieJar([
-    { name: 'sid', value: 'v1', domain: '.sysu.edu.cn', path: '/jwxt' }
+    { name: 'sid', value: 'v1', domain: '.jnu.edu.cn', path: '/jwxt' }
   ]);
-  assert.equal(jar.header('https://jwxt.sysu.edu.cn/jwxt/api/login/status'), 'sid=v1');
-  assert.equal(jar.header('https://jwxt.sysu.edu.cn/other'), '');
-  jar.store('https://jwxt.sysu.edu.cn/jwxt/api/login/status', ['sid=v2; Path=/jwxt; HttpOnly']);
-  assert.equal(jar.header('https://jwxt.sysu.edu.cn/jwxt/api/login/status'), 'sid=v2');
+  assert.equal(jar.header('https://jw.jnu.edu.cn/jwxt/api/course'), 'sid=v1');
+  assert.equal(jar.header('https://jw.jnu.edu.cn/other'), '');
+  jar.store('https://jw.jnu.edu.cn/jwxt/api/course', ['sid=v2; Path=/jwxt; HttpOnly']);
+  assert.equal(jar.header('https://jw.jnu.edu.cn/jwxt/api/course'), 'sid=v2');
   assert.equal(jar.dirty, true);
 });
 
-test('CLI contract: course list, grade list, exam list succeed against mock JWXT', async () => {
-  const courses = await invoke(['course', 'list']);
+test('CLI contract: JNU term, course, grade, and exam queries succeed against mock JWXT', async () => {
+  const term = await invoke(['term', 'current']);
+  assert.equal(term.code, 0);
+  assert.equal(term.body.data.term, '2026-2027-1');
+  assert.equal(term.body.data.label, '2026-2027 学年第一学期');
+  assert.equal(term.body.data.currentWeek, 8);
+  assert.equal(term.body.data.totalWeeks, 18);
+
+  const courses = await invoke(['course', 'list', '--term', '2026-1', '--week', '8', '--raw']);
   assert.equal(courses.code, 0);
   assert.equal(courses.body.ok, true);
-  assert.equal(courses.body.data.term, '2025-1');
+  assert.equal(courses.body.data.term, '2026-1');
   assert.equal(courses.body.data.week, 8);
-  assert.equal(courses.body.data.count, 4);
+  assert.equal(courses.body.data.currentWeek, 8);
+  assert.equal(courses.body.data.count, 2);
+  assert.equal(courses.body.data.courses[0].courseName, '高等数学');
+  assert.equal(courses.body.data.courses[0].courseCode, 'MATH101');
+  assert.equal(courses.body.data.courses[0].teacher, '张老师,李老师');
+  assert.equal(courses.body.data.courses[0].location, '教学楼B201');
+  assert.equal(courses.body.data.courses[0].startSection, 1);
+  assert.equal(courses.body.data.courses[0].endSection, 2);
+  assert.equal(courses.body.data.courses[0].campus, '番禺校区');
+  assert.equal(courses.body.data.raw[0].KCM, '高等数学');
+
+  const monday = await invoke(['course', 'list', '--term', '2026-1', '--week', '8', '--weekday', '1']);
+  assert.equal(monday.code, 0);
+  assert.equal(monday.body.data.count, 1);
+  assert.equal(monday.body.data.weekdayName, '周一');
+
+  const today = await invoke(['course', 'today', '--date', '2026-10-26']);
+  assert.equal(today.code, 0);
+  assert.equal(today.body.data.date, '2026-10-26');
+  assert.equal(today.body.data.weekday, 1);
+  assert.equal(today.body.data.count, 1);
+  assert.equal(today.body.data.courses[0].courseName, '高等数学');
 
   const grades = await invoke(['grade', 'list']);
   assert.equal(grades.code, 0);
-  assert.equal(grades.body.data.count, 2);
+  assert.equal(grades.body.data.term, '2026-1');
+  assert.equal(grades.body.data.count, 3);
   assert.equal(grades.body.data.summary.computed.weightedGpa, 3.978);
-  assert.equal(grades.body.data.summary.official.avePoint, '3.98');
+  assert.equal(grades.body.data.summary.official, null);
+  assert.equal(Object.hasOwn(grades.body.data.grades[0], 'PSCJ'), false);
+
+  const rawGrades = await invoke(['grade', 'list', '--term', '2026-2027-1', '--raw']);
+  assert.equal(rawGrades.code, 0);
+  assert.equal(rawGrades.body.data.raw[0].PSCJ, '90');
+  assert.equal(Object.hasOwn(rawGrades.body.data.grades[0], 'QMCJ'), false);
 
   const exams = await invoke(['exam', 'list', '--type', '18-19周期末考']);
   assert.equal(exams.code, 0);
@@ -131,11 +202,25 @@ test('CLI contract: course list, grade list, exam list succeed against mock JWXT
 });
 
 test('CLI contract: returns structured LOGIN_REQUIRED when session is missing', async () => {
-  const res = await invoke(['course', 'list'], { SYSU_MOCK_LOGGED_OUT: '1' });
+  const res = await invoke(['course', 'list'], { JNU_MOCK_LOGGED_OUT: '1' });
   assert.equal(res.code, 3);
   assert.equal(res.body.ok, false);
   assert.equal(res.body.error.code, 'LOGIN_REQUIRED');
   assert.match(res.body.error.hint, /auth refresh/);
+});
+
+test('CLI contract: auth login/status use the verified JNU authentication endpoints', async () => {
+  const login = await invoke(['auth', 'login']);
+  assert.equal(login.code, 0);
+  assert.equal(login.body.data.loggedIn, true);
+  assert.equal(login.body.data.backend, 'mock');
+
+  const status = await invoke(['auth', 'status']);
+  assert.equal(status.code, 0);
+  assert.equal(status.body.data.loggedIn, true);
+  assert.equal(status.body.data.reason, 'jwxt-session-active');
+  assert.equal(status.body.data.userId, '23000001');
+  assert.equal(status.body.data.userName, '张三');
 });
 
 test('CLI contract: returns UNKNOWN_COMMAND and INVALID_ARGUMENT with exit code 2', async () => {
@@ -188,16 +273,16 @@ test('CLI contract: classroom, cet, notice, completion, program, catalog, profil
   assert.equal(prof.body.data.profile.name, '张三');
   assert.equal(prof.body.data.academicWarnings[0].count, 0);
 
-  const ics = await invoke(['course', 'export-ics', '--week', '8']);
+  const ics = await invoke(['course', 'export-ics', '--term', '2026-1', '--week', '8']);
   assert.equal(ics.code, 0);
   assert.equal(ics.body.data.eventCount, 2);
   assert.match(ics.body.data.ics, /BEGIN:VCALENDAR/);
-  assert.match(ics.body.data.ics, /SUMMARY:数据结构与算法/);
-  assert.match(ics.body.data.ics, /DTSTART;TZID=Asia\/Shanghai:20251027T080000/);
+  assert.match(ics.body.data.ics, /SUMMARY:高等数学/);
+  assert.match(ics.body.data.ics, /DTSTART;TZID=Asia\/Shanghai:20261026T080000/);
 });
 
-test('CLI contract: library search & holdings, gym venues/slots/me/book/cancel, usc services/tasks, and fee unpaid', async () => {
-  const libSearch = await invoke(['library', 'search', '--query', '算法导论', '--campus', '东校园']);
+test('CLI contract: library search & holdings and fee unpaid', async () => {
+  const libSearch = await invoke(['library', 'search', '--query', '算法导论', '--campus', '番禺校区']);
   assert.equal(libSearch.code, 0);
   assert.equal(libSearch.body.data.count, 1);
   assert.equal(libSearch.body.data.books[0].docNumber, '001011438');
@@ -210,111 +295,26 @@ test('CLI contract: library search & holdings, gym venues/slots/me/book/cancel, 
   assert.equal(libHoldings.body.data.items[0].barcode, 'A1801623');
   assert.equal(libHoldings.body.data.items[0].status, '在架上');
 
-  const venues = await invoke(['gym', 'venues', '--campus', '东校园']);
-  assert.equal(venues.code, 0);
-  assert.equal(venues.body.data.count, 1);
-  assert.equal(venues.body.data.venues[0].venueTypeId, 'd5e17b8e-cc7c-4b3f-8737-8cfcfd5f10bf');
-
-  const slots = await invoke(['gym', 'slots', '--venue', '东校园体育馆羽毛球场', '--date', '2026-10-26', '--available']);
-  assert.equal(slots.code, 0);
-  assert.equal(slots.body.data.totalAvailableSlots, 1);
-  assert.equal(slots.body.data.courts[0].venueName, '场地8');
-  assert.equal(slots.body.data.courts[0].slots[0].start, '20:00');
-
-  const me = await invoke(['gym', 'me']);
-  assert.equal(me.code, 0);
-  assert.equal(me.body.data.profile.credits, 120);
-  assert.equal(me.body.data.bookings[0].date, '2026-10-26');
-  assert.equal(me.body.data.bookings[0].startTime, '20:00');
-
-  const booked = await invoke(['gym', 'book', '--venue', '东校园体育馆羽毛球场', '--date', '2026-10-26', '--time', '20:00', '--court', '场地8']);
-  assert.equal(booked.code, 0);
-  assert.equal(booked.body.data.status, 'Accepted');
-  assert.equal(booked.body.data.venueName, '场地8');
-  assert.match(booked.body.data.bookingId, /^[0-9a-f]{32}\.\d+\.[0-9a-f]{32}$/);
-
-  const cancelled = await invoke(['gym', 'cancel', '--id', 'b1111111-2222-4333-8444-555555555555']);
-  assert.equal(cancelled.code, 0);
-  assert.equal(cancelled.body.data.cancelled, true);
-
-  const uscSvc = await invoke(['usc', 'services', '--search', '水电']);
-  assert.equal(uscSvc.code, 0);
-  assert.equal(uscSvc.body.data.count, 1);
-  assert.equal(uscSvc.body.data.services[0].department, '总务部');
-
-  const uscTodo = await invoke(['usc', 'tasks', '--type', 'todo']);
-  assert.equal(uscTodo.code, 0);
-  assert.equal(uscTodo.body.data.count, 1);
-  assert.equal(uscTodo.body.data.tasks[0].title, '在读证明申请');
-
   const unpaid = await invoke(['fee', 'unpaid']);
   assert.equal(unpaid.code, 0);
   assert.equal(unpaid.body.data.count, 1);
   assert.equal(unpaid.body.data.items[0].feeName, '2026学年住宿费');
-
-  const lmsCats = await invoke(['lms', 'categories']);
-  assert.equal(lmsCats.code, 0);
-  assert.equal(lmsCats.body.data.count, 2);
-  assert.equal(lmsCats.body.data.categories[0].name, '本科生课程');
-
-  const lmsSearch = await invoke(['lms', 'search', '--query', 'Python']);
-  assert.equal(lmsSearch.code, 0);
-  assert.equal(lmsSearch.body.data.courses[0].courseId, '1005033');
-
-  const lmsCourses = await invoke(['lms', 'courses']);
-  assert.equal(lmsCourses.code, 0);
-  assert.equal(lmsCourses.body.data.courses[0].courseId, '59');
-  assert.equal(lmsCourses.body.data.courses[0].progress, 60);
-
-  const lmsDdl = await invoke(['lms', 'deadlines']);
-  assert.equal(lmsDdl.code, 0);
-  assert.equal(lmsDdl.body.data.deadlines[0].moduleType, 'quiz');
-  assert.equal(lmsDdl.body.data.deadlines[0].activityName, '第一章测验');
-
-  const lmsTasks = await invoke(['lms', 'tasks', '--course', '59', '--todo', '--open']);
-  assert.equal(lmsTasks.code, 0);
-  assert.equal(lmsTasks.body.data.taskCount, 2);
-  assert.equal(lmsTasks.body.data.tasks[0].category, 'video');
-  assert.equal(lmsTasks.body.data.tasks[0].url, 'https://lms.sysu.edu.cn/mod/fsresource/view.php?id=190');
-  assert.equal(lmsTasks.body.data.opened.openedCount, 2);
-
-  const lmsQuiz = await invoke(['lms', 'quiz', '--id', '196']);
-  assert.equal(lmsQuiz.code, 0);
-  assert.equal(lmsQuiz.body.data.questionCount, 2);
-  assert.equal(lmsQuiz.body.data.questions[0].stem, '以下哪项属于监督学习算法？');
-  assert.equal(lmsQuiz.body.data.questions[0].options[1].text, '支持向量机 (SVM)');
-  assert.equal(lmsQuiz.body.data.questions[0].options[1].selected, true);
-  assert.match(lmsQuiz.body.data.text, /【第 1 题】\(选择题\)/);
-  assert.match(lmsQuiz.body.data.text, /\[x\] b\. 支持向量机 \(SVM\)/);
-  assert.match(lmsQuiz.body.data.text, /【第 2 题】\(判断题\)/);
 });
 
-test('gym WASM signature generator, SafeLine PoW solver, and anti-high-frequency rate limiter work as expected', async () => {
-  const sig = generateBookingSignature('test-uuid', 1700000000, 'test-hash');
-  assert.equal(sig, 'e02577dae13175e45f2e953f272f5c1e.1700000000.test-hash');
-
-  const hash = computeSlotsHash([{ VenueId: 'v1' }]);
-  assert.match(hash, /^[0-9a-f]{32}$/);
-
-  const powSuffix = solveSafelinePow('42f6d242a8e4484d95a6380a7153586958d91fc9', 9);
-  assert.equal(powSuffix, '3d4');
-
-  const fakeJwt = `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify({ sub: '11111111-2222-4333-8444-555555555555' })).toString('base64url')}.sig`;
-  assert.equal(extractUuidFromJwt(fakeJwt), '11111111-2222-4333-8444-555555555555');
-
-  const tempHome = mkdtempSync(join(tmpdir(), 'sysu-cli-rl-'));
-  const prevHome = process.env.SYSU_CLI_HOME;
-  const prevForce = process.env.SYSU_FORCE_RATE_LIMIT;
-  process.env.SYSU_CLI_HOME = tempHome;
-  process.env.SYSU_FORCE_RATE_LIMIT = '1';
+test('anti-high-frequency rate limiter rejects a repeated action inside its cooldown', async () => {
+  const tempHome = mkdtempSync(join(tmpdir(), 'jnu-cli-rl-'));
+  const prevHome = process.env.JNU_CLI_HOME;
+  const prevForce = process.env.JNU_FORCE_RATE_LIMIT;
+  process.env.JNU_CLI_HOME = tempHome;
+  process.env.JNU_FORCE_RATE_LIMIT = '1';
   try {
     await enforceActionCooldown('test.action', 5000);
     await assert.rejects(() => enforceActionCooldown('test.action', 5000), { code: 'RATE_LIMITED' });
   } finally {
-    if (prevHome === undefined) delete process.env.SYSU_CLI_HOME;
-    else process.env.SYSU_CLI_HOME = prevHome;
-    if (prevForce === undefined) delete process.env.SYSU_FORCE_RATE_LIMIT;
-    else process.env.SYSU_FORCE_RATE_LIMIT = prevForce;
+    if (prevHome === undefined) delete process.env.JNU_CLI_HOME;
+    else process.env.JNU_CLI_HOME = prevHome;
+    if (prevForce === undefined) delete process.env.JNU_FORCE_RATE_LIMIT;
+    else process.env.JNU_FORCE_RATE_LIMIT = prevForce;
   }
 });
 

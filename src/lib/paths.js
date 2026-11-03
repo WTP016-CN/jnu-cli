@@ -2,7 +2,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 export function cliHome() {
-  return process.env.SYSU_CLI_HOME || join(homedir(), '.sysu-cli');
+  return process.env.JNU_CLI_HOME || join(homedir(), '.jnu-cli');
 }
 
 export function statePath() {

@@ -1,10 +1,11 @@
 import { readFile } from 'node:fs/promises';
 
 import { CliError, invalidArgument } from '../lib/errors.js';
+import { notCaptured } from '../lib/not-captured.js';
 import { paceRequest } from '../lib/rate-limit.js';
 import { parseLibraryHoldingsHtml, parseLibrarySearchHtml } from '../parsers/library-parser.js';
 
-const OPAC_BASE = process.env.SYSU_OPAC_BASE_URL || 'http://10.8.11.130:8991/F';
+const OPAC_BASE = process.env.JNU_OPAC_BASE_URL || 'https://lib.jnu.edu.cn';
 
 const FIELD_MAP = {
   any: 'WRD',
@@ -25,14 +26,14 @@ const FIELD_MAP = {
 
 function resolveLocalBase(lang = 'zh') {
   const normalized = String(lang || 'zh').toLowerCase();
-  if (['zh', 'cn', 'zsu01'].includes(normalized)) return 'ZSU01';
-  if (['en', 'west', 'zsu09'].includes(normalized)) return 'ZSU09';
-  throw invalidArgument(`Invalid --lang "${lang}". Use "zh" (中文文献 ZSU01) or "en" (西文文献 ZSU09).`);
+  if (['zh', 'cn'].includes(normalized)) return 'JNU01';
+  if (['en', 'west'].includes(normalized)) return 'JNU09';
+  throw invalidArgument(`Invalid --lang "${lang}". Use "zh" (中文文献 JNU01) or "en" (西文文献 JNU09).`);
 }
 
 async function fetchOpacHtml(queryString) {
-  if (process.env.SYSU_BACKEND === 'mock') {
-    const file = process.env.SYSU_MOCK_FILE;
+  if (process.env.JNU_BACKEND === 'mock') {
+    const file = process.env.JNU_MOCK_FILE;
     if (file) {
       const table = JSON.parse(await readFile(file, 'utf8'));
       const key = `OPAC ${queryString}`;
@@ -41,12 +42,16 @@ async function fetchOpacHtml(queryString) {
     throw new CliError('UPSTREAM_ERROR', `No mock OPAC fixture for ${queryString}`);
   }
 
+  if (process.env.JNU_ENDPOINTS_CAPTURED !== '1') {
+    throw notCaptured('lib.jnu.edu.cn OPAC');
+  }
+
   await paceRequest('library', 400);
   const url = `${OPAC_BASE}/?${queryString}`;
   try {
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) sysu-cli/0.3'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) jnu-cli/0.3'
       },
       signal: AbortSignal.timeout(15000)
     });
@@ -58,7 +63,7 @@ async function fetchOpacHtml(queryString) {
     return await res.text();
   } catch (error) {
     if (error instanceof CliError) throw error;
-    throw new CliError('NETWORK_ERROR', `Failed to reach SYSU Library OPAC (${url}): ${error.message}`, {
+    throw new CliError('NETWORK_ERROR', `Failed to reach JNU Library OPAC (${url}): ${error.message}`, {
       hint: 'Check campus network or VPN connectivity to library OPAC.',
       cause: error
     });
@@ -68,7 +73,7 @@ async function fetchOpacHtml(queryString) {
 export async function searchLibrary({ query, field = 'any', lang = 'zh', campus } = {}) {
   const keyword = String(query ?? '').trim();
   if (!keyword) {
-    throw invalidArgument('Missing --query <keyword> for `sysu-cli library search`.');
+    throw invalidArgument('Missing --query <keyword> for `jnu-cli library search`.');
   }
   const findCode = FIELD_MAP[String(field).toLowerCase()];
   if (!findCode) {
@@ -101,7 +106,7 @@ export async function searchLibrary({ query, field = 'any', lang = 'zh', campus 
 export async function getLibraryHoldings({ doc, lang = 'zh', campus, availableOnly = false } = {}) {
   const rawDoc = String(doc ?? '').trim();
   if (!rawDoc) {
-    throw invalidArgument('Missing --doc <docNumber> for `sysu-cli library holdings` (get docNumber from `library search`).');
+    throw invalidArgument('Missing --doc <docNumber> for `jnu-cli library holdings` (get docNumber from `library search`).');
   }
   const docNumber = rawDoc.padStart(9, '0');
   const localBase = resolveLocalBase(lang);

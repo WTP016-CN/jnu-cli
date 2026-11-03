@@ -46,7 +46,7 @@ export async function queryClassrooms(client, {
   raw = false
 } = {}) {
   if (!building) {
-    throw invalidArgument('`--building <名称或ID>` is required by JWXT (run `sysu-cli classroom buildings --campus <校区>` to list buildings).');
+    throw invalidArgument('`--building <名称或ID>` is required by JWXT (run `jnu-cli classroom buildings --campus <校区>` to list buildings).');
   }
   const [startSection, endSection] = parseSectionRange(sections);
   const dateStr = formatDate(date ?? new Date());

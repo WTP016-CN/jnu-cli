@@ -14,7 +14,7 @@ function sleep(ms) {
  * In-process polite pacing between consecutive HTTP requests in a single command.
  */
 export async function paceRequest(bucket = 'default', minIntervalMs = 350) {
-  if (process.env.SYSU_BACKEND === 'mock') return;
+  if (process.env.JNU_BACKEND === 'mock') return;
   const now = Date.now();
   const prev = lastRequestByBucket.get(bucket) ?? 0;
   const waitMs = minIntervalMs - (now - prev);
@@ -25,12 +25,12 @@ export async function paceRequest(bucket = 'default', minIntervalMs = 350) {
 }
 
 /**
- * Cross-process cooldown guard persisted in ~/.sysu-cli/rate-limit.json
+ * Cross-process cooldown guard persisted in ~/.jnu-cli/rate-limit.json
  * to prevent scripts or AI agents from invoking sensitive actions (like gym booking)
  * in high-frequency loops.
  */
 export async function enforceActionCooldown(actionKey, cooldownMs = 3000) {
-  if (process.env.SYSU_BACKEND === 'mock' && process.env.SYSU_FORCE_RATE_LIMIT !== '1') return;
+  if (process.env.JNU_BACKEND === 'mock' && process.env.JNU_FORCE_RATE_LIMIT !== '1') return;
   const file = join(cliHome(), 'rate-limit.json');
   let state = {};
   try {

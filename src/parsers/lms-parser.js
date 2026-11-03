@@ -16,7 +16,7 @@ function cleanText(html = '') {
     .trim();
 }
 
-const LMS_BASE_URL = 'https://lms.sysu.edu.cn';
+const LMS_BASE_URL = 'https://lms.jnu.edu.cn';
 
 const MOD_TYPE_LABELS = {
   fsresource: '视频/富媒体',
